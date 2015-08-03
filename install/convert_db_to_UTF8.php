@@ -39,7 +39,7 @@ foreach($drop_tables as $t) {
 // PREPARE or_lang TABLE FOR UTF-8 
 /// (indexes are limited to 1000 chars, 
 // index needs 3xfield size under UTF-8)
-$query="ALTER TABLE ".table('lang')." CHANGE content_type content_type VARCHAR(30) default NULL";
+$query="ALTER TABLE ".table('lang')." CHANGE content_type content_type VARCHAR(250) default NULL";
 $done=mysqli_query($GLOBALS['mysqli'],$query) or die("Database error: " . mysqli_error($GLOBALS['mysqli']));
 $query="ALTER TABLE ".table('lang')." change content_name content_name VARCHAR(250) default NULL";
 $done=mysqli_query($GLOBALS['mysqli'],$query) or die("Database error: " . mysqli_error($GLOBALS['mysqli']));
