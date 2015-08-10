@@ -616,9 +616,12 @@ function experimentmail__send_participant_exclusion_mail($part) {
 
 function experimentmail__send_reminder_notice($line,$number,$sent,$disclaimer="") {
 	global $settings;
-	$experimenters=explode(",",$line['experimenter_mail']);
+	$experimenters=explode(",",$line['experimenter_mail']); // MC51 - from experiments table - will be admin id of admin table
+
 	foreach ($experimenters as $experimenter) {
-		$mail=orsee_db_load_array("admin",$experimenter,"adminname");
+		//MC51 - bugfix we need to remove | char from $experimenter  string - Probably need to remove from the beginning/db, however different bug?
+		$experimenter = str_replace('|', '', $experimenter); //MC51
+		$mail=orsee_db_load_array("admin",$experimenter,"admin_id"); //MC51 - also Bug here - $experimenter is admin_id not adminname - this changed from orsee 2.x
 		$tlang= ($mail['language']) ? $mail['language'] : $settings['admin_standard_language'];
 		$lang=load_language($tlang);
 		$mail['session_name']=session__build_name($line,$tlang);
@@ -637,7 +640,7 @@ function experimentmail__send_reminder_notice($line,$number,$sent,$disclaimer=""
 
 		if ($mail['disclaimer']) $sub_notice=load_language_symbol('subject_for_session_reminder_error_notice',$tlang);
 		else $sub_notice=load_language_symbol('subject_for_session_reminder_ok_notice',$tlang);
-		$recipient=$mail['email'];
+		$recipient=$mail['email']; // MC51 - here we get a notice from php - undef var
 		$subject=$sub_notice.' '.$mail['experiment_name'].' '.$mail['session_name'];
 		$mailtext=load_mail("admin_session_reminder_notice",$tlang);
        	$message=process_mail_template($mailtext,$mail);

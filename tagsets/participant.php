@@ -1501,10 +1501,18 @@ function participant__get_result_table_row($columns,$p) {
 			case 'invited':
 				$out.='<td class="small">'.($p['invited']?lang('y'):lang('n')).'</td>';
 				break;
-			case 'rules_signed':
+			case 'rules_signed': //MC51 - Output in experiment_participants_show.php is created here - Lets Add Option to Change rules_signed
 				if ($settings['enable_rules_signed_tracking']=='y')  {
-					$out.='<td class="small">';
-					$out.=lang($p['rules_signed']);
+					$out.='<td class="small">'; //MC51 - Hacky bugfix -> C&p of participant_rules_signed_form_field function
+
+					if ($p['rules_signed']=="y") $out.='<INPUT type="hidden" name="mc_disabled['.$p['participant_id'].']" value="y">'; //MC Disable if Yes is selected
+
+					$out.='<input type=radio name="rules_signed['.$p['participant_id'].']" value="y"'; //MC51 - name in Quotes
+						if ($p['rules_signed']=="y") $out.=" disabled CHECKED"; //MC51 - Lock if already signed, so experimenters not change by mistake
+					$out.='>'.lang('yes').'&nbsp;&nbsp;&nbsp;
+		            <input type=radio name="rules_signed['.$p['participant_id'].']" value="n"'; //MC51 - name in Quotes
+		        		if ($p['rules_signed']!="y") $out.=" CHECKED";
+		        	$out.='>'.lang('no');
 					$out.='</td>';
 				}
 				break;
