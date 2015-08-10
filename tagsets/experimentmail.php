@@ -616,12 +616,11 @@ function experimentmail__send_participant_exclusion_mail($part) {
 
 function experimentmail__send_reminder_notice($line,$number,$sent,$disclaimer="") {
 	global $settings;
-	$experimenters=explode(",",$line['experimenter_mail']); // MC51 - from experiments table - will be admin id of admin table
+	$experimenters=explode(",",$line['experimenter_mail']);
 
 	foreach ($experimenters as $experimenter) {
-		//MC51 - bugfix we need to remove | char from $experimenter  string - Probably need to remove from the beginning/db, however different bug?
-		$experimenter = str_replace('|', '', $experimenter); //MC51
-		$mail=orsee_db_load_array("admin",$experimenter,"admin_id"); //MC51 - also Bug here - $experimenter is admin_id not adminname - this changed from orsee 2.x
+		$experimenter = str_replace('|', '', $experimenter);
+		$mail=orsee_db_load_array("admin",$experimenter,"admin_id");
 		$tlang= ($mail['language']) ? $mail['language'] : $settings['admin_standard_language'];
 		$lang=load_language($tlang);
 		$mail['session_name']=session__build_name($line,$tlang);
@@ -640,7 +639,7 @@ function experimentmail__send_reminder_notice($line,$number,$sent,$disclaimer=""
 
 		if ($mail['disclaimer']) $sub_notice=load_language_symbol('subject_for_session_reminder_error_notice',$tlang);
 		else $sub_notice=load_language_symbol('subject_for_session_reminder_ok_notice',$tlang);
-		$recipient=$mail['email']; // MC51 - here we get a notice from php - undef var
+		$recipient=$mail['email'];
 		$subject=$sub_notice.' '.$mail['experiment_name'].' '.$mail['session_name'];
 		$mailtext=load_mail("admin_session_reminder_notice",$tlang);
        	$message=process_mail_template($mailtext,$mail);
@@ -912,8 +911,8 @@ function experimentmail__send_registration_notice($line) {
 	$experimenters=db_string_to_id_array($line['experimenter_mail']);
 
 	foreach ($experimenters as $experimenter) {
-		$experimenter=str_replace('|', '', $experimenter); //MC51 - bugfix we need to remove | char from $experimenter  string - Probably need to remove from the beginning/db, however different bug?
-	    $admin=orsee_db_load_array("admin",$experimenter,"admin_id"); // MC51- changed "adminname" to "admin_id"
+		$experimenter=str_replace('|', '', $experimenter);
+	    $admin=orsee_db_load_array("admin",$experimenter,"admin_id");
 
 	    if (isset($admin['admin_id'])) {
 			$tlang= ($admin['language']) ? $admin['language'] : $settings['admin_standard_language'];

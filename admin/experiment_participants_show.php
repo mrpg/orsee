@@ -205,7 +205,7 @@ if ($proceed) {
 					if($settings['enable_rules_signed_tracking']=='y') {
 						$pars=array();
 						foreach($_REQUEST['pid'] as $k=>$v) {
-							if (isset($_REQUEST['rules_signed'][$v]) && $_REQUEST['rules_signed'][$v]=='y' || isset($_REQUEST['mc_disabled'][$v]) && $_REQUEST['mc_disabled'][$v]=='y' ) $r='y'; //  MC51 - Bugfix -> we added rules_signed to request in participant.php so now we can check what is chosen | if option was disables is must have been y
+							if (isset($_REQUEST['rules_signed'][$v]) && $_REQUEST['rules_signed'][$v]=='y' || isset($_REQUEST['mc_disabled'][$v]) && $_REQUEST['mc_disabled'][$v]=='y' ) $r='y';
 							else $r='n';
 							$pars[]=array(':rules_signed'=>$r,
 										':participant_id'=>$k);
