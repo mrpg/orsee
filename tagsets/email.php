@@ -31,9 +31,9 @@ function email__retrieve_incoming() {
 		$messages = $mailbox->listMessages();
 		$count=0;
 		foreach ($messages as $message) {
-			
+
 			$continue=true;
-			
+
 			if (isset($settings['email_module_delete_emails_from_server']) && $settings['email_module_delete_emails_from_server']=='n') {
 				if (!isset($all_email_ids)) {
 					$query="SELECT message_id FROM ".table('emails');
@@ -43,11 +43,11 @@ function email__retrieve_incoming() {
 				}
 				if (in_array($message['message_id'],$all_email_ids)) $continue=false;
 			}
-			
+
 			if ($continue) {
 				// download message
 				$email = $mailbox->fetchMessage($message['uid'],TRUE);
-			
+
 				// prepare and save to db
 				if (isset($email['text'])) $body = email__strip_html($email['text']);
 				elseif (isset($email['html'])) $body = email__strip_html($email['html']);
@@ -79,10 +79,10 @@ function email__retrieve_incoming() {
 
 				$pars[':thread_id']=$message['message_id'];
 				$pars[':thread_time']=$pars[':timestamp'];
-			
+
 				$pars[':mailbox']='not_assigned';
-			
-				$query="INSERT IGNORE INTO ".table('emails')." 
+
+				$query="INSERT IGNORE INTO ".table('emails')."
 						SET message_id= :message_id,
 						message_type= :message_type,
 						timestamp= :timestamp,
@@ -109,7 +109,7 @@ function email__retrieve_incoming() {
 		}
 		$result['count']=$count;
 	}
-	
+
 	return $result;
 }
 
@@ -143,7 +143,7 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		}
 		if (count($flags)>0) email__update_flags($email['thread_id'],$flags);
 	}
-	
+
 	// guess participant if not already set
 	$guess_parts=array(); $guess_part_message="";
 	if (!$email['participant_id']) {
@@ -165,7 +165,7 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		if (count($guess_exp_sess)==0) {
 			$guess_expsess_message=lang('cannot_guess');
 		} else {
-			$guess_expsess_message=lang('guess'); 
+			$guess_expsess_message=lang('guess');
 			$email['experiment_id']=$guess_exp_sess[0]['experiment_id'];
 			$email['session_id']=$guess_exp_sess[0]['session_id'];
 		}
@@ -175,12 +175,12 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		if ($email['experiment_id']) $experiment=orsee_db_load_array("experiments",$email['experiment_id'],"experiment_id");
 		if (!isset($session['session_id'])) $session=array();
 	}
-	if (!isset($session['session_id'])) $session=array();	
-	if (!isset($experiment['experiment_id'])) $experiment=array();	
-	
-	$orig_to=explode(",",$email['to_address']); 
+	if (!isset($session['session_id'])) $session=array();
+	if (!isset($experiment['experiment_id'])) $experiment=array();
+
+	$orig_to=explode(",",$email['to_address']);
 	if ($email['cc_address']) $orig_cc=explode(",",$email['cc_address']); else $orig_cc=array();
-	
+
 	echo '<table class="or_formtable" style="background: '.$color['options_box_background'].'" CELLPADDING="3" CELLSPACING="3" >
 		<TR class="emailtable"><TD align="right">';
 
@@ -200,10 +200,10 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		echo '<INPUT type="hidden" name="hide_header" value="true">';
 	}
 	echo '<TABLE  class="or_panel" style="background: '.$color['content_background_color'].'; width: 100%; padding: 2px;" CELLPADDING="3" CELLSPACING="0">';
-			
-	
-	// show settings to classify this email	
-	
+
+
+	// show settings to classify this email
+
 	echo '<TR style="background: '.$color['panel_title_background'].'; color: '.$color['panel_title_textcolor'].';">
 		<TD align=right>'.lang('mailbox_experiment_session').':</TD>
 		<TD align=left valign=middle>';
@@ -225,7 +225,7 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 			echo lang('mailbox_not_assigned');
 		}
 	}
-	
+
 	if ($email['experiment_id']) echo '<BR><A HREF="experiment_show.php?experiment_id='.urlencode($email['experiment_id']).'" style="color: '.$color['panel_title_textcolor'].';">['.str_replace(" ","&nbsp",lang('view_experiment')).']</A>';
 	if ($email['session_id']) echo ' <A HREF="experiment_participants_show.php?experiment_id='.urlencode($email['experiment_id']).'&session_id='.urlencode($email['session_id']).'" style="color: '.$color['panel_title_textcolor'].';">['.str_replace(" ","&nbsp",lang('view_session')).']</A>';
 
@@ -234,7 +234,7 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 			<TD align=center valign=middle rowspan=3>';
 
 	echo lang('email_processed?').'<BR>';
-	if ($allow_change) {	
+	if ($allow_change) {
 		echo '<select id="processed_switch" name="flag_processed">';
 		echo '<option value="0"'; if (!$email['flag_processed']) echo ' SELECTED'; echo '></option>';
 		echo '<option value="1"'; if ($email['flag_processed']) echo ' SELECTED'; echo '></option>';
@@ -244,7 +244,7 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 			$('#processed_switch').switchy();
 			$('#processed_switch').on('change', function(){
 				var firstOption = $(this).children('option').first().val();
-				var lastOption = $(this).children('option').last().val();   
+				var lastOption = $(this).children('option').last().val();
 				var bgColor = '#bababa';
 				if ($(this).val() == firstOption){
 					bgColor = '#DC143C';
@@ -259,10 +259,10 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		echo $out;
 	} else {
 		if ($email['flag_processed']) echo lang('y'); else echo lang('n');
-	}		
+	}
 	echo '	</TD>
 			<TD align=center valign=middle rowspan=3>';
-	
+
 	if ($allow_change) echo '<INPUT class="button small" type="submit" name="update" value="'.lang('save').'">';
 	echo '	</TD>
 			</TR>';
@@ -305,17 +305,17 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		echo '</TD>
 			</TR>';
 	}
-		
+
 	// show headers
 	email__show_headers($email) ;
 
 	// show email body
 	email__show_body($email);
-	
+
 	// attachments
 	email__show_attachments($email);
-		
-	echo '	
+
+	echo '
 		</TABLE>
 		</FORM>
 		</TD></TR>
@@ -344,7 +344,7 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 	}
 	echo '</TABLE></TD></TR>';
 
-	if (count($replies)>0) {	
+	if (count($replies)>0) {
 		echo '<TR class="emailtable"><TD align="right">';
 		email__show_buttons($email,$reply_all_button,false,$allow_reply,$allow_note);
 		echo '</TD></TR>';
@@ -360,10 +360,10 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		if (isset($_REQUEST['hide_header']) && $_REQUEST['hide_header']) {
 			echo '<INPUT type="hidden" name="hide_header" value="true">';
 		}
-	
+
 		if (isset($_REQUEST['replytype']) && $_REQUEST['replytype']=='reply') $replytype='reply';
 		else $replytype='replyall';
-	
+
 		echo '<INPUT id="replytype" type="hidden" name="replytype" value="'.$replytype.'">';
 
 		echo '<TABLE class="or_panel" style="background: '.$color['content_background_color'].'; width: 100%;">';
@@ -374,14 +374,14 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 					<TD width=90% align=left>'.$settings['support_mail'].'</TD>
 				</TR>';
 		if (isset($_REQUEST['send_to'])) $to=$_REQUEST['send_to'];
-		elseif (isset($email['reply_to_address']) && $email['reply_to_address']) $to=$email['reply_to_address']; 
+		elseif (isset($email['reply_to_address']) && $email['reply_to_address']) $to=$email['reply_to_address'];
 		else $to=$email['from_address'];
 		echo '<TR>
 				 <TD align=right>'.lang('email_to').':</TD><TD align=left>
 					<INPUT type="text" name="send_to" size=60 maxlength=255 value="'.$to.'">
 				</TD>
 				</TR>';
-	
+
 		if (isset($_REQUEST['send_cc_replyall'])) $cc_replyall=$_REQUEST['send_cc_replyall'];
 		else {
 			$cc_arr=array();
@@ -419,7 +419,7 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		echo '</FORM>';
 		echo '</TD></TR>';
 	}
-	
+
 	// note field
 	if ($allow_note) {
 		echo '<TR id="notefield"><TD>';
@@ -430,11 +430,11 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		if (isset($_REQUEST['hide_header']) && $_REQUEST['hide_header']) {
 			echo '<INPUT type="hidden" name="hide_header" value="true">';
 		}
-	
+
 		echo '<TABLE class="or_panel" style="background: '.$color['content_background_color'].'; width: 100%;">';
 		echo '<TR><TD colspan="3" align=right>
 				<I id="close_note" class="fa fa-times-circle-o fa-2x"></I>
-				</TD></TR>';	
+				</TD></TR>';
 		echo '<TR><TD valign="top" rowspan="3">';
 		echo icon('file-text-o','',' fa-2x',' color: #666666;','internal note');
 		echo '</TD><TD rowspan="3">&nbsp;&nbsp;</TD>';
@@ -449,10 +449,10 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		echo '</TABLE>';
 		echo '</FORM>';
 		echo '</TD></TR>';
-	}	
-	
+	}
+
 	echo '</TABLE>';
-	
+
 	echo '	<script type="text/javascript"> ';
 	if (!$open_reply) echo '$("#replyfield").hide(); ';
 	else {
@@ -460,7 +460,7 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 		else echo ' $("#ccfield_reply").hide(); ';
 	}
 	if ($allow_note && !$open_note) echo '$("#notefield").hide(); ';
-	
+
 	if ($allow_note) echo '
 				$(".note_button").click(function() {
 					$(".emailtable :input").attr("disabled", true);
@@ -473,8 +473,8 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
    					$("#notefield").hide();
 					$(".emailtable :input").attr("disabled", false);
 				});';
-	
-	if ($allow_reply) echo '			
+
+	if ($allow_reply) echo '
 				$(".reply_button").click(function() {
 					$(".emailtable :input").attr("disabled", true);
 					$("#replytype").val("reply");
@@ -504,7 +504,7 @@ function email__show_email($email,$open_reply=false,$open_note=false) {
 				});';
 	echo '
 			</script>';
-	
+
 }
 
 function email__show_buttons($email,$reply_all_button=false,$delete_button=false,$reply_button=true,$note_button=true) {
@@ -592,7 +592,7 @@ function email__show_attachments($email) {
 		echo '<TR><TD>'.lang('attachments').':</TD></TR>';
 		$attachments=email__dbstring_to_attachment_array($email['attachment_data'],false);
 		echo '<TR><TD>';
-		foreach ($attachments as $k=>$attachment) {			
+		foreach ($attachments as $k=>$attachment) {
 				echo '<A HREF="emails_download_attachment.php?message_id='.
 					urlencode($email['message_id']).'&k='.urlencode($k).'">'.
 					//icon('paperclip').
@@ -609,26 +609,26 @@ function email__list_emails($mode='inbox',$id='',$rmode='assigned',$url_string='
 	if (substr($url_string,0,1)=='?') $url_string=substr($url_string,1);
 
 	$conditions=array(); $pars=array();
-	if ($mode=='trash') { $conditions[]=' flag_deleted=1 '; } else { $conditions[]=' flag_deleted=0 '; }	
-	
-	if ($mode=='inbox') { $conditions[]=' flag_processed=0 '; } 
+	if ($mode=='trash') { $conditions[]=' flag_deleted=1 '; } else { $conditions[]=' flag_deleted=0 '; }
+
+	if ($mode=='inbox') { $conditions[]=' flag_processed=0 '; }
 	elseif ($mode=='mailbox') { $conditions[]=' mailbox=:mailbox '; $pars[':mailbox']=$id; }
 	elseif ($mode=='experiment') { $conditions[]=' experiment_id=:experiment_id '; $pars[':experiment_id']=$id; }
 	elseif ($mode=='session') { $conditions[]=' session_id=:session_id '; $pars[':session_id']=$id; }
 	elseif ($mode=='participant') { $conditions[]=' participant_id=:participant_id '; $pars[':participant_id']=$id; }
-	
-	if ($rmode=='assigned') { 
+
+	if ($rmode=='assigned') {
 		global $expadmindata;
 		$ass_clause=query__get_experimenter_or_clause(array($expadmindata['admin_id']),'emails','assigned_to');
-		$conditions[]=$ass_clause['clause']; foreach ($ass_clause['pars'] as $k=>$v) $pars[$k]=$v; 
+		$conditions[]=$ass_clause['clause']; foreach ($ass_clause['pars'] as $k=>$v) $pars[$k]=$v;
 	} elseif ($rmode=='experiments') {
 		global $expadmindata;
 		$likelist=query__make_like_list($expadmindata['admin_id'],'assigned_to');
 		$conditions[]=" experiment_id IN (SELECT experiment_id as id
-						FROM ".table('experiments')." WHERE (".$likelist['par_names'].") ) ";	
+						FROM ".table('experiments')." WHERE (".$likelist['par_names'].") ) ";
 		foreach ($likelist['pars'] as $k=>$v) $pars[$k]=$v;
 	}
-	
+
 	$query="SELECT * FROM ".table('emails')."
 			WHERE ".implode(" AND ",$conditions)."
 			ORDER BY thread_time DESC, thread_id, if (thread_id=message_id,0,1), timestamp";
@@ -663,17 +663,17 @@ function email__list_emails($mode='inbox',$id='',$rmode='assigned',$url_string='
 	echo '</tr>
 			</thead><tbody>';
 	$cols=7;
-	
+
 	$shade=false; $style_unprocessed=' style="font-weight: bold;"';
 	foreach ($emails as $email) {
 		$second_row='';
 		if ($email['thread_id']==$email['message_id']) {
-			if ($shade) $shade=false; else $shade=true; 
+			if ($shade) $shade=false; else $shade=true;
         	$second_row="";
         	// experiment or mailbox - not if experiment or session or mailbox
 			if (!in_array($mode,array('experiment','session','mailbox'))) {
 				if ($email['experiment_id']) {
-					if (isset($related_experiments[$email['experiment_id']])) 
+					if (isset($related_experiments[$email['experiment_id']]))
 						$second_row.=$related_experiments[$email['experiment_id']]['experiment_name'];
 				} elseif ($email['mailbox']) {
 					$second_row.='<b>'.lang('email_mailbox').':</b> '.$mailboxes[$email['mailbox']];
@@ -695,7 +695,7 @@ function email__list_emails($mode='inbox',$id='',$rmode='assigned',$url_string='
 		echo '<tr';
 		if ($shade) echo ' bgcolor="'.$color['list_shade1'].'"';
         else echo ' bgcolor="'.$color['list_shade2'].'"';
-    	if (!$email['flag_processed'] && $mode!='inbox') echo $style_unprocessed;        
+    	if (!$email['flag_processed'] && $mode!='inbox') echo $style_unprocessed;
         echo '>';
 
 		// thread head and subject
@@ -714,7 +714,7 @@ function email__list_emails($mode='inbox',$id='',$rmode='assigned',$url_string='
 		if ($email['has_attachments']) echo icon('paperclip');
 		echo '</TD>';
 
-		// from		
+		// from
 		echo '<td>';
 		if ($email['message_type']=='reply')  {
 		echo experiment__list_experimenters($email['admin_id'],false,true).' &lt;'.$email['from_address'].'&gt;';
@@ -729,27 +729,27 @@ function email__list_emails($mode='inbox',$id='',$rmode='assigned',$url_string='
 
 		// date
 		echo '<td>'.ortime__format($email['timestamp']).'</td>';
-		
+
 		if ($email['thread_id']==$email['message_id']) {
 			// read // assigned_to_read
 			echo '<td align=center valign=middle>';
 			echo '<A HREF="'.thisdoc().'?'.$url_string.'&switch_read=true&message_id='.urlencode($email['message_id']).'">';
 			if ($email['flag_read']) echo icon('circle-o','','',' color: #666666;');
-			else echo icon('dot-circle-o','','',' color: #008000;'); 
+			else echo icon('dot-circle-o','','',' color: #008000;');
 			echo '</A>';
 			if ($settings['email_module_allow_assign_emails']=='y' && $email['assigned_to']) {
 				echo '<A HREF="'.thisdoc().'?'.$url_string.'&switch_assigned_to_read=true&message_id='.urlencode($email['message_id']).'">';
 				if ($email['flag_assigned_to_read']) echo icon('circle-o','','',' color: #666666;');
-				else echo icon('dot-circle-o','','',' color: #000080;'); 
-				echo '</A>';	
+				else echo icon('dot-circle-o','','',' color: #000080;');
+				echo '</A>';
 			}
 			echo '</td>';
-		
+
 			// processed - check and background of row
 			echo '<td>';
 			if ($email['flag_processed']) echo icon('check','','',' color: #008000;');
 			echo '</td>';
-		
+
 			// view email button
 			echo '<td valign="top"';
 			if ($second_row) echo ' rowspan="2"';
@@ -761,12 +761,12 @@ function email__list_emails($mode='inbox',$id='',$rmode='assigned',$url_string='
 		}
 
         echo '</tr>';
-        
+
 		if ($second_row) {
         	echo '<tr';
 			if ($shade) echo ' bgcolor="'.$color['list_shade1'].'"';
 			else echo ' bgcolor="'.$color['list_shade2'].'"';
-			if (!$email['flag_processed'] && $mode!='inbox') echo $style_unprocessed;        
+			if (!$email['flag_processed'] && $mode!='inbox') echo $style_unprocessed;
 			echo '>';
         	echo '<TD></TD>';
         	echo '<TD colspan="'.($cols-2).'">';
@@ -785,9 +785,9 @@ function email__show_mail_boxes() {
 	global $color;
 	$mailboxes=email__load_mailboxes();
 
-	$query="SELECT mailbox, if(experiment_id>0,1,0) as is_exp, flag_processed, flag_deleted, count(*) as num_emails 
-			FROM ".table('emails')." 
-			WHERE message_id = thread_id 
+	$query="SELECT mailbox, if(experiment_id>0,1,0) as is_exp, flag_processed, flag_deleted, count(*) as num_emails
+			FROM ".table('emails')."
+			WHERE message_id = thread_id
 			GROUP BY mailbox, flag_processed, flag_deleted, is_exp";
 	$result=or_query($query);
 	$num_emails=array();
@@ -799,9 +799,9 @@ function email__show_mail_boxes() {
 		else $status='inbox';
 		$num_emails[$line['mailbox']][$status]=$line['num_emails'];
 	}
-	
+
 	echo '<TABLE class="or_listtable" style="min-width: 50%">';
-	
+
 	echo '	<thead><TR style="background: '.$color['list_header_background'].'; color: '.$color['list_header_textcolor'].';">
 				<TD style=" padding: 5px 10px 5px 2px;">'.lang('email_mailbox').'</TD>
 				<TD style=" padding: 5px 10px 5px 0px;"><A HREF="emails_main.php?mode=inbox" style="color: '.$color['list_header_textcolor'].';">'.lang('mailbox_inbox').'</A></TD>
@@ -809,7 +809,7 @@ function email__show_mail_boxes() {
 				<TD style=" padding: 5px 10px 5px 0px;"><A HREF="emails_main.php?mode=trash" style="color: '.$color['list_header_textcolor'].';">'.lang('mailbox_trash').'</A></TD>
 			</TR></thead>
 			<tbody>';
-			
+
 	echo '<TR><TD>'.lang('assigned_to_experiments').'</TD><TD>';
 	if (isset($num_emails['experiments']['inbox'])) echo $num_emails['experiments']['inbox']; else echo '0';
 	echo '</TD><TD>';
@@ -817,7 +817,7 @@ function email__show_mail_boxes() {
 	echo '</TD><TD>';
 	if (isset($num_emails['experiments']['deleted'])) echo $num_emails['experiments']['deleted']; else echo '0';
 	echo '</TD></TR>';
-	
+
 	foreach ($mailboxes as $id=>$name) {
 		echo '<TR><TD><A HREF="emails_main.php?mode=mailbox&id='.urlencode($id).'">'.$name.'</A></TD><TD>';
 		if (isset($num_emails[$id]['inbox'])) echo $num_emails[$id]['inbox']; else echo '0';
@@ -825,7 +825,7 @@ function email__show_mail_boxes() {
 		if (isset($num_emails[$id]['processed'])) echo $num_emails[$id]['processed']; else echo '0';
 		echo '</TD><TD>';
 		if (isset($num_emails[$id]['deleted'])) echo $num_emails[$id]['deleted']; else echo '0';
-		echo '</TD></TR>';		
+		echo '</TD></TR>';
 	}
 	echo '</tbody></TABLE>';
 }
@@ -906,7 +906,7 @@ function email__participant_select($email,$participant=array(),$guess_parts=arra
 	if (count($guess_parts)>0 && $email['session_id']) {
 		$sort=query__load_default_sort('email_participant_guesses_list');
 		$pars=array(':session_id'=>$email['session_id']);
-		$query="SELECT * from ".table('participants')." 
+		$query="SELECT * from ".table('participants')."
 				WHERE participant_id IN (
 					SELECT participant_id FROM ".table('participate_at')."
 					WHERE session_id= :session_id)
@@ -932,22 +932,22 @@ function email__expsess_select($email,$session=array(),$experiment=array(),$part
 	elseif(isset($experiment['experiment_id'])) $selected=$experiment['experiment_id'].',0';
 	elseif(!$email['mailbox']) $selected='0,0';
 	else $selected='';
-	
+
 	$pars=array();
-	$query="SELECT ".table('experiments').".*, ".table('sessions').".* 
-			FROM ".table('experiments')." LEFT JOIN ".table('sessions')." 
-			ON ".table('experiments').".experiment_id=".table('sessions').".experiment_id 
+	$query="SELECT ".table('experiments').".*, ".table('sessions').".*
+			FROM ".table('experiments')." LEFT JOIN ".table('sessions')."
+			ON ".table('experiments').".experiment_id=".table('sessions').".experiment_id
 			WHERE (".table('experiments').".experiment_finished='n')";
 	if (isset($session['experiment_id'])) {
 		$query.=" OR (".table('experiments').".experiment_id= :experiment_id) ";
 		$pars[':experiment_id']=$session['experiment_id'];
 	} elseif (isset($experiment['experiment_id'])) {
 		$query.=" OR (".table('experiments').".experiment_id= :experiment_id) ";
-		$pars[':experiment_id']=$experiment['experiment_id'];	
+		$pars[':experiment_id']=$experiment['experiment_id'];
 	}
 	if (isset($participant['participant_id'])) {
 		$query.=" OR (".table('experiments').".experiment_id IN (
-					SELECT experiment_id FROM ".table('participate_at')." 
+					SELECT experiment_id FROM ".table('participate_at')."
 					WHERE participant_id= :participant_id) ) ";
 		$pars[':participant_id']=$participant['participant_id'];
 	}
@@ -968,7 +968,7 @@ function email__expsess_select($email,$session=array(),$experiment=array(),$part
 	foreach ($experiments as $id=>$arr) $experiments[$id]['lastsesstime_reversed']=0-$arr['lastsesstime'];
 	multi_array_sort($experiments,'lastsesstime_reversed');
 	echo '<SELECT name="expsess"><OPTION value="0,0">'.lang('select_none').'</OPTION>';
-    		
+
 	// list special mail boxes
 	$mailboxes=email__load_mailboxes();
 	foreach ($mailboxes as $k=>$mb) {
@@ -1017,7 +1017,7 @@ function email__load_mailboxes() {
         $preloaded_mailboxes=$mailboxes;
         return $mailboxes;
     }
-} 
+}
 
 function email__update_flags($thread_id,$flags=array()) {
 	if (is_array($flags) && count($flags>0)) {
@@ -1027,8 +1027,8 @@ function email__update_flags($thread_id,$flags=array()) {
 			$pars[':flag_'.$flag_name]=$flag_value;
 			$clause[]='flag_'.$flag_name.'='.':flag_'.$flag_name;
 		}
-		$query="UPDATE ".table('emails')." 
-				SET ".implode(", ",$clause)." 
+		$query="UPDATE ".table('emails')."
+				SET ".implode(", ",$clause)."
 				WHERE thread_id=:thread_id";
 		$done=or_query($query,$pars);
 		return $done;
@@ -1039,8 +1039,8 @@ function email__switch_read_status($thread_id,$flag='read') {
 	$pars=array();
 	if ($flag!='assigned_to_read') $flag='read';
 	$pars[':thread_id']=$thread_id;
-	$query="UPDATE ".table('emails')." 
-			SET flag_".$flag." = if (flag_".$flag."=1,0,1) 
+	$query="UPDATE ".table('emails')."
+			SET flag_".$flag." = if (flag_".$flag."=1,0,1)
 			WHERE thread_id=:thread_id";
 	$done=or_query($query,$pars);
 	return '';
@@ -1050,7 +1050,7 @@ function email__update_thread_time($thread_id,$thread_time) {
 	$pars=array();
 	$pars[':thread_id']=$thread_id;
 	$pars[':thread_time']=$thread_time;
-	$query="UPDATE ".table('emails')." 
+	$query="UPDATE ".table('emails')."
 			SET thread_time = :thread_time
 			WHERE thread_id=:thread_id";
 	$done=or_query($query,$pars);
@@ -1061,16 +1061,16 @@ function email__update_email($email) {
 
 	$new_experiment_id=0; $new_session_id=0;
 
-	if (isset($_REQUEST['expsess']) && $_REQUEST['expsess']) 
-		$sent_expsess=$_REQUEST['expsess']; 
+	if (isset($_REQUEST['expsess']) && $_REQUEST['expsess'])
+		$sent_expsess=$_REQUEST['expsess'];
 	else $sent_expsess='';
-	if (isset($_REQUEST['participant_id']) && $_REQUEST['participant_id']) 
-		$sent_participant_id=$_REQUEST['participant_id']; 
+	if (isset($_REQUEST['participant_id']) && $_REQUEST['participant_id'])
+		$sent_participant_id=$_REQUEST['participant_id'];
 	else $sent_participant_id=0;
-	if (isset($_REQUEST['assigned_to']) && $_REQUEST['assigned_to']) 
-		$sent_assigned_to=id_array_to_db_string(multipicker_json_to_array($_REQUEST['assigned_to'])); 
+	if (isset($_REQUEST['assigned_to']) && $_REQUEST['assigned_to'])
+		$sent_assigned_to=id_array_to_db_string(multipicker_json_to_array($_REQUEST['assigned_to']));
 	else $sent_assigned_to='';
-	if (isset($_REQUEST['flag_processed']) && $_REQUEST['flag_processed']) $flag_processed=1; 
+	if (isset($_REQUEST['flag_processed']) && $_REQUEST['flag_processed']) $flag_processed=1;
 	else $flag_processed=0;
 
 	$abox=explode(",",$sent_expsess);
@@ -1097,13 +1097,13 @@ function email__update_email($email) {
 				':assigned_to'=>$new_assigned_to,
 				':flag_processed'=>$flag_processed,
 				':thread_id'=>$email['message_id']);
-	$query="UPDATE ".table('emails')." 
+	$query="UPDATE ".table('emails')."
 			SET mailbox= :mailbox,
 				experiment_id= :experiment_id,
 				session_id= :session_id,
 				participant_id= :participant_id,
 				assigned_to= :assigned_to,
-				flag_processed = :flag_processed 
+				flag_processed = :flag_processed
                 WHERE thread_id = :thread_id";
     $done=or_query($query,$pars);
 
@@ -1116,7 +1116,7 @@ function email__delete_undelete_email($email,$action) {
 	if ($action=='delete') $flag_deleted=1; else $flag_deleted=0;
 	$pars=array(':flag_deleted'=>$flag_deleted);
    	$pars[':thread_id']=$email['thread_id'];
-	$query="UPDATE ".table('emails')." 
+	$query="UPDATE ".table('emails')."
 			SET flag_deleted=:flag_deleted
 			WHERE thread_id=:thread_id";
 	$done=or_query($query,$pars);
@@ -1126,7 +1126,7 @@ function email__delete_undelete_email($email,$action) {
 }
 
 function email__empty_trash() {
-	$query="DELETE FROM ".table('emails')." 
+	$query="DELETE FROM ".table('emails')."
 			WHERE flag_deleted = 1";
 	$done=or_query($query,$pars);
 	message(lang('email_trash_emptied'));
@@ -1138,14 +1138,14 @@ function email__get_count($col,$id,$assigned_to=0) {
 	$conditions[]="thread_id = message_id";
 	$conditions[]="flag_deleted = 0";
 	if ($col) {
-		$pars[':id']=$id; 
+		$pars[':id']=$id;
 		$conditions[]=$col." = :id";
 	}
 	if ($assigned_to) {
 		$ass_clause=query__get_experimenter_or_clause(array($assigned_to),'emails','assigned_to');
-		$conditions[]=$ass_clause['clause']; foreach ($ass_clause['pars'] as $k=>$v) $pars[$k]=$v; 
+		$conditions[]=$ass_clause['clause']; foreach ($ass_clause['pars'] as $k=>$v) $pars[$k]=$v;
 	}
-	$query="SELECT flag_processed, count(*) as num_emails 
+	$query="SELECT flag_processed, count(*) as num_emails
 			FROM ".table('emails')."
 			WHERE ".implode(" AND ",$conditions)."
 			GROUP BY flag_processed ";
@@ -1160,7 +1160,7 @@ function email__get_count($col,$id,$assigned_to=0) {
 }
 
 function email__get_privileges($what,$array,$priv='read',$get_nums=true) {
-	global $settings, $expadmindata; 
+	global $settings, $expadmindata;
 	$return=array('allowed'=>false,'num_all'=>0,'num_new'=>0,$nums['rmode']='');
 	if ($settings['enable_email_module']=='y') {
 		if ( check_allow('emails_'.$priv.'_all')) {
@@ -1178,7 +1178,7 @@ function email__get_privileges($what,$array,$priv='read',$get_nums=true) {
 				if ($get_nums) {
 					if ($what=='experiment') $nums=email__get_count('experiment_id',$array['experiment_id']);
 					elseif ($what=='session') $nums=email__get_count('session_id',$array['session_id']);
-				}	
+				}
 			}
 		} elseif ($settings['email_module_allow_assign_emails']=='y' && check_allow('emails_'.$priv.'_assigned')) {
 			$return['allowed']=true; $return['rmode']='assigned';
@@ -1198,24 +1198,24 @@ function email__get_privileges($what,$array,$priv='read',$get_nums=true) {
 }
 
 function email__is_allowed($email,$experiment,$priv='read') {
-	global $settings, $expadmindata; 
+	global $settings, $expadmindata;
 	$return=false; $continue=true;
 	if ($settings['enable_email_module']=='y') {
 		if (check_allow('emails_'.$priv.'_all')) {
 			$return=true; $continue=false;
-		} 
+		}
 		if ($continue && check_allow('emails_'.$priv.'_experiments') && $email['experiment_id']) {
 			if (!isset($experiment['experiment_id'])) $experiment=orsee_db_load_array("experiments",$email['experiment_id'],"experiment_id");
 			$experimenters=db_string_to_id_array($experiment['experimenter']);
 			if (in_array($expadmindata['admin_id'],$experimenters)) {
 				$return=true; $continue=false;
-			} 
+			}
 		}
 		if ($continue && $settings['email_module_allow_assign_emails']=='y' && check_allow('emails_'.$priv.'_assigned')) {
 			$assigned_to=db_string_to_id_array($experiment['assigned_to']);
 			if (in_array($expadmindata['admin_id'],$assigned_to)) {
 				$return=true; $continue=false;
-			} 
+			}
 		}
 	}
 	return $return;
@@ -1240,39 +1240,39 @@ function email__send_reply_email($email) {
 	if ($continue) {
 		$to_adds=explode(",",$_REQUEST['send_to']);
 		foreach ($to_adds as $k=>$to_add) {
-			$to_adds[$k]=trim($to_add);	
+			$to_adds[$k]=trim($to_add);
 		 	if (!preg_match($email_regex,trim($to_add))) {
 				$continue=false;
 			}
 			if (!$continue)	message(lang('error_email__to_address_not_given_or_wrong_format'));
 		}
 	}
-	
+
 	if ($reply_type=='reply') $cc_field='send_cc_reply'; else $cc_field='send_cc_replyall';
 	if (isset($_REQUEST[$cc_field]) && $_REQUEST[$cc_field]) $cc_adds=explode(",",$_REQUEST[$cc_field]);
 	else $cc_adds=array();
 	foreach ($cc_adds as $k=>$cc_add) {
-		$cc_adds[$k]=trim($cc_add);	
+		$cc_adds[$k]=trim($cc_add);
 		if (!preg_match($email_regex,trim($cc_add))) {
 			$continue=false;
 		}
 		if (!$continue)	message(lang('error_email__cc_address_wrong_format'));
 	}
-	
+
 	if (isset($_REQUEST['send_subject'])) $subject=$_REQUEST['send_subject'];
 	else $subject="";
 	if (!$subject) {
 		$continue=false;
-		message(lang('error_email__subject_is_empty'));	
+		message(lang('error_email__subject_is_empty'));
 	}
-	
+
 	if (isset($_REQUEST['send_body'])) $body=$_REQUEST['send_body'];
 	else $body="";
 	if (!$body) {
 		$continue=false;
-		message(lang('error_email__message_body_is_empty'));	
+		message(lang('error_email__message_body_is_empty'));
 	}
-	
+
 	if ($continue) {
 		$s['message_id']='<'.sha1(microtime()).'@'. $settings__server_url.'>';
 		$s['message_type']='reply';
@@ -1280,7 +1280,7 @@ function email__send_reply_email($email) {
 		$s['timestamp']=time();
 		$s['from_address']=$settings['support_mail'];
 		$s['to_address']=implode(",",$to_adds);
-		$s['cc_address']=implode(",",$cc_adds);	
+		$s['cc_address']=implode(",",$cc_adds);
 		$s['subject']=$subject;
 		$s['body']=$body;
 
@@ -1320,14 +1320,14 @@ function email__add_internal_note($email) {
 
 	// checks
 	$continue=true;
-	
+
 	if (isset($_REQUEST['note_body'])) $body=$_REQUEST['note_body'];
 	else $body="";
 	if (!$body) {
 		$continue=false;
-		message(lang('error_email__message_body_is_empty'));	
+		message(lang('error_email__message_body_is_empty'));
 	}
-	
+
 	if ($continue) {
 		$s['message_id']='<'.sha1(microtime()).'@'. $settings__server_url.'>';
 		$s['message_type']='note';
@@ -1335,7 +1335,7 @@ function email__add_internal_note($email) {
 		$s['timestamp']=time();
 		$s['from_address']='';
 		$s['to_address']='';
-		$s['cc_address']='';	
+		$s['cc_address']='';
 		$s['subject']='';
 		$s['body']=$body;
 
@@ -1374,7 +1374,7 @@ function email__strip_html($text) {
 	$text = preg_replace("/\R{3,}/", "\n\n", $text);
 	$text = preg_replace("/\R/", "\n", $text);
 	$text = trim($text);
-	return $text; 
+	return $text;
 }
 
 function email__format_email($text) {
