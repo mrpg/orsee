@@ -1650,7 +1650,7 @@ function participant__get_result_table_row_pdf($columns,$p) {
 				break;
 			case 'rules_signed':
 				if ($settings['enable_rules_signed_tracking']=='y')  {
-					$row[]= ($p['rules_signed']!='y') ? '' : 'X';
+					$row[]= ($p['rules_signed']!='y') ? 'NO' : 'yes';
 				}
 				break;
 			case 'subscriptions':
