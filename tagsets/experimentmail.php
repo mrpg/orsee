@@ -616,7 +616,7 @@ function experimentmail__send_participant_exclusion_mail($part) {
 
 function experimentmail__send_reminder_notice($line,$number,$sent,$disclaimer="") {
 	global $settings;
-	$experimenters=explode(",",$line['experimenter_mail']);
+	$experimenters=db_string_to_id_array($line['experimenter_mail']);
 
 	foreach ($experimenters as $experimenter) {
 		$experimenter = str_replace('|', '', $experimenter);
