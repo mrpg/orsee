@@ -619,7 +619,6 @@ function experimentmail__send_reminder_notice($line,$number,$sent,$disclaimer=""
 	$experimenters=db_string_to_id_array($line['experimenter_mail']);
 
 	foreach ($experimenters as $experimenter) {
-		$experimenter = str_replace('|', '', $experimenter);
 		$mail=orsee_db_load_array("admin",$experimenter,"admin_id");
 		$tlang= ($mail['language']) ? $mail['language'] : $settings['admin_standard_language'];
 		$lang=load_language($tlang);
