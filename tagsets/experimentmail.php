@@ -244,7 +244,7 @@ function experimentmail__send_noshow_warnings_to_queue($session) {
 
 function experimentmail__set_reminder_checked($session_id) {
 	// update session table : reminder_checked
-	$pars=array(':session_id'=>$session['session_id']);
+	$pars=array(':session_id'=>$session_id);
     $query="UPDATE ".table('sessions')." SET reminder_checked='y' WHERE session_id = :session_id";
     $done=or_query($query,$pars);
 	return $done;
@@ -252,7 +252,7 @@ function experimentmail__set_reminder_checked($session_id) {
 
 function experimentmail__set_noshow_warnings_checked($session_id) {
         // update session table : reminder_checked
-        $pars=array(':session_id'=>$session['session_id']);
+        $pars=array(':session_id'=>$session_id);
         $query="UPDATE ".table('sessions')." SET noshow_warning_sent='y' WHERE session_id= :session_id";
         $done=or_query($query,$pars);
         return $done;
@@ -347,7 +347,7 @@ function experimentmail__send_mails_from_queue($number=0,$type="",$experiment_id
 				$mailtext=experimentmail__get_customized_mailtext('experiment_session_reminder_mail',$texp,$tlang);
 			if (!isset($mailtext) || !$mailtext || !is_array($mailtext)) {
 				$mailtext['subject']=load_language_symbol('email_session_reminder_subject',$tlang);
-				$mailtext['body']=load_mail("public_session_reminder",$$tlang);
+				$mailtext['body']=load_mail("public_session_reminder",$tlang);
 			}
 			$reminder_text[$texp][$tlang]=$mailtext;
 		}
@@ -950,7 +950,7 @@ function experimentmail__send_calendar() {
 	global $lang, $settings;
     $now=time();
 	if (isset($settings['emailed_calendar_included_months']) && $settings['emailed_calendar_included_months']>0)
-			$number_of_months=$settings['emailed_calendar_included_months']-1;
+			$number_of_months=$settings['emailed_calendar_included_months']-1; // could possibly be removed?
 	else $number_of_months=1;
     $from=$settings['support_mail'];
 
@@ -979,7 +979,7 @@ function experimentmail__send_calendar() {
 			$mail_subject=lang('experiment_calendar').' '.ortime__format($now,'hide_time:true',$maillang);
 			$cal_name=lang('experiment_calendar').' '.date("Y-m-d",$now);
     		$cal_filename=str_replace(" ","_",$cal_name).".pdf";
-			$cal_file=pdfoutput__make_calendar($now,false,true,$number_of_months,true);
+			$cal_file=pdfoutput__make_pdf_calendar($now,false,true,$number_of_months,true);
 		}
 		$mailtext=load_mail("admin_calendar_mailtext",$maillang)."\n".
 					experimentmail__get_admin_footer($maillang,$admin)."\n";
