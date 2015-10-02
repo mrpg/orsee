@@ -33,6 +33,7 @@ function experimentmail__send($recipient,$subject,$message,$headers,$env_sender=
 		$done=true;
 	} else {
 	    $headers="Errors-To: ".$settings['support_mail']."\r\n".$headers;
+	    $headers="Return-Path: ".$settings['support_mail']."\r\n".$headers;
 		$done=mail($recipient,$subject,$message,$headers,'-f '.$env_sender);
 	}
 	return $done;
