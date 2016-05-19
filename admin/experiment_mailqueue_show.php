@@ -12,7 +12,13 @@ if ($proceed) {
 }
 
 if ($proceed) {
-    $allow=check_allow('mailqueue_show_all','experiment_show.php?experiment_id='.$experiment_id);
+    $allow=(check_allow('mailqueue_show_all') || check_allow('mailqueue_edit_experiment'));
+
+    if (!$allow) {
+        message (lang('error_not_authorized_to_access_this_function'));
+        redirect("admin/experiment_show.php?experiment_id=".$experiment_id);
+        $proceed=false;
+    }
 }
 
 if ($proceed) {
